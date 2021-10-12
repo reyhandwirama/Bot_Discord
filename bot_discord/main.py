@@ -48,12 +48,13 @@ class Player(commands.Cog):
 
     async def play_song(self, ctx, song):
         queue_len= len(self.song_queue[ctx.guild.id])
+        FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': '-vn'}
         if queue_len == 0 :
             ctx.voice_client.stop()
         url = pafy.new(song).getbestaudio().url
         
-        ctx.voice_client.play(discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(url)),after=lambda error: self.bot.loop.create_task(self.check_queue(ctx)))
-        ctx.voice_client.source.volume = 0.5
+        ctx.voice_client.play(discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(url,**FFMPEG_OPTIONS)),after=lambda error: self.bot.loop.create_task(self.check_queue(ctx)))
+        ctx.voice_client.source.volume = 1
         await ctx.send(f"Langsung ae kali yak , diplay: {song}")
         
         
@@ -70,11 +71,11 @@ class Player(commands.Cog):
 
         if ctx.voice_client is not None:
             await ctx.voice_client.disconnect()
-
+        await ctx.send("Hallo Gaes .. ")
         await ctx.author.voice.channel.connect()
         queue_len = len(self.song_queue[ctx.guild.id])
         if queue_len == 0 :
-            await asyncio.sleep(60) 
+            await asyncio.sleep(240) 
             await ctx.send("Ah lama banget request lagunya . gua chau dah ")
             await ctx.voice_client.disconnect()
 
@@ -82,9 +83,10 @@ class Player(commands.Cog):
     async def leave(self, ctx):
         if ctx.voice_client is not None:
             self.song_queue[ctx.guild.id].clear()
+            await ctx.send("Makasih ye udah gunain gua , Im Chau")
             return await ctx.voice_client.disconnect()
-
-        await ctx.send("Gua Belum Masuk Ke Voice Channel pe'ak")
+        if ctx.voice_client is None:
+            await ctx.send("Gua Belom Masuk Voice Channel cuy , Udah Disuruh Keluar Bae")
 
     @commands.command(aliases=['P','Play','p','PLAY'])
     async def play(self, ctx, *, song=None):
@@ -249,4 +251,3 @@ async def setup():
 
 bot.loop.create_task(setup())
 keep_alive()
-bot.run("ODQ1MzU5MjY3ODYyNTQ0NDA1.YKf0Kw.8oP9qCBJ3WiNGzllGVqvzA8UHhI")
