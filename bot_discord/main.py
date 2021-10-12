@@ -53,6 +53,7 @@ class Player(commands.Cog):
             ctx.voice_client.stop()
         url = pafy.new(song).getbestaudio().url
         
+        """ Menambah perintah meminta link baru setelah 5 menit agar tidak langsung berhenti lagunya """
         ctx.voice_client.play(discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(url,**FFMPEG_OPTIONS)),after=lambda error: self.bot.loop.create_task(self.check_queue(ctx)))
         ctx.voice_client.source.volume = 1
         await ctx.send(f"Langsung ae kali yak , diplay: {song}")
